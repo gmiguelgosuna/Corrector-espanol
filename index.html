@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Profe de apoyo</title>
+<meta name="description" content="Revisa la gramática, la ortografía y la sintaxis de tus textos en español, con una explicación breve de cada corrección.">
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Profe de apoyo<span class="tick">✓</span></h1>
+      <p>Revisa tu texto y aprende el porqué de cada corrección.</p>
+    </div>
+    <nav>
+      <a class="btn ghost" href="ayuda.html">Ayuda</a>
+      <button class="btn" id="openSettings" type="button">Ajustes</button>
+    </nav>
+  </header>
+
+  <p class="notice" id="notice">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 4.6v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span>Tu texto se envía a <b id="providerName">Mistral</b> para revisarlo. No incluyas datos personales (nombre completo, dirección, salud…). <a href="ayuda.html#privacidad">¿Quién puede ver mis datos?</a></span>
+  </p>
+
+  <main class="layout">
+    <section class="page" aria-label="Tu texto">
+      <!-- Editing mode -->
+      <div id="editMode">
+        <div class="page-bar">
+          <button class="btn small" id="uploadBtn" type="button">Subir Word (.docx)</button>
+          <input id="fileInput" type="file" accept=".docx,.txt,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+          <span class="grow"></span>
+          <span class="count" id="wordCount">0 / 5.000 palabras</span>
+          <button class="btn primary" id="checkBtn" type="button">Revisar texto</button>
+        </div>
+        <div id="editBanner"></div>
+        <div class="sheet">
+          <label for="input" class="label" style="position:absolute;left:-9999px">Tu texto</label>
+          <textarea id="input" spellcheck="false" placeholder="Pega aquí tu redacción (hasta 10 páginas) o sube un archivo de Word…"></textarea>
+        </div>
+        <div class="empty-help" id="emptyHelp">
+          <span>¿Quieres ver cómo funciona?</span>
+          <button class="btn small" id="sampleBtn" type="button">Probar con un texto de ejemplo</button>
+        </div>
+      </div>
+
+      <!-- Review mode -->
+      <div id="reviewMode" hidden>
+        <div class="page-bar">
+          <button class="btn small" id="editBtn" type="button">Editar texto</button>
+          <span class="grow"></span>
+          <button class="btn small" id="copyBtn" type="button">Copiar texto</button>
+          <button class="btn small" id="downloadBtn" type="button">Descargar (.txt)</button>
+        </div>
+        <div class="progress" id="progress">
+          <div class="progress-label" id="progressLabel">Preparando…</div>
+          <div class="bar"><span id="progressBar"></span></div>
+        </div>
+        <div id="reviewBanner"></div>
+        <div class="sheet" id="sheet">
+          <div class="doc" id="doc" aria-live="polite"></div>
+          <div class="card" id="card" hidden role="dialog" aria-label="Sugerencia"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="panel how" id="howPanel">
+        <h2>Cómo funciona</h2>
+        <ol>
+          <li>Pega tu texto o sube un Word.</li>
+          <li>Pulsa <b>Revisar texto</b>.</li>
+          <li>Toca cada palabra subrayada: verás la corrección y la regla.</li>
+          <li><b>Acepta</b> o <b>rechaza</b> cada cambio. Tú decides.</li>
+        </ol>
+        <div class="legend" aria-label="Tipos de corrección">
+          <span class="chip static t-ortografia">Ortografía</span>
+          <span class="chip static t-gramatica">Gramática</span>
+          <span class="chip static t-concordancia">Concordancia</span>
+          <span class="chip static t-puntuacion">Puntuación</span>
+          <span class="chip static t-sintaxis">Sintaxis</span>
+          <span class="chip static t-estilo">Estilo</span>
+        </div>
+        <p>La primera vez necesitas una clave gratuita. <a href="ayuda.html#clave">Cómo conseguirla</a>.</p>
+      </div>
+
+      <div class="panel" id="sumPanel" hidden>
+        <div class="label">Sugerencias</div>
+        <div class="stats" id="stats"></div>
+        <div class="filters" id="filters"></div>
+        <div class="actions">
+          <button class="btn small ok" id="acceptAll" type="button">Aceptar todas</button>
+          <button class="btn small" id="rejectAll" type="button">Rechazar todas</button>
+        </div>
+      </div>
+      <div class="panel" id="listPanel" hidden>
+        <ul class="list" id="list"></ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="foot-links">
+    <a href="ayuda.html">Ayuda y privacidad</a>
+    <span>Sin anuncios ni rastreadores.</span>
+  </footer>
+</div>
+
+<dialog id="settings" aria-labelledby="settingsTitle">
+  <form class="dlg" id="settingsForm" method="dialog">
+    <h2 id="settingsTitle">Ajustes</h2>
+
+    <div class="field">
+      <span class="label">Servicio de IA</span>
+      <div class="seg">
+        <label><input type="radio" name="provider" value="mistral" checked> <span>Mistral<small>Plan gratuito. Recomendado.</small></span></label>
+        <label><input type="radio" name="provider" value="infomaniak"> <span>Infomaniak<small>De pago, en Suiza.</small></span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="apiKey">Tu clave de API</label>
+      <div class="keyrow">
+        <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Pega aquí tu clave">
+        <button class="btn small" id="toggleKey" type="button">Mostrar</button>
+      </div>
+      <span class="hint" id="keyHint">¿No tienes clave? <a href="ayuda.html#clave" target="_blank" rel="noopener">Consíguela gratis en 5 minutos</a>.</span>
+    </div>
+
+    <div id="infomaniakFields" hidden>
+      <div class="field">
+        <label for="productId">ID del producto (Infomaniak)</label>
+        <input id="productId" type="text" inputmode="numeric" autocomplete="off" placeholder="Por ejemplo: 104567">
+        <span class="hint">En el Manager de Infomaniak: Cloud Computing → AI Tools.</span>
+      </div>
+      <div class="field">
+        <label for="model">Modelo (opcional)</label>
+        <input id="model" type="text" autocomplete="off" spellcheck="false" placeholder="Se elige automáticamente">
+        <span class="hint">Déjalo vacío salvo que tu profesor/a te indique uno.</span>
+      </div>
+    </div>
+
+    <label class="check"><input type="checkbox" id="shared"> <span><b>Ordenador compartido: no guardar nada</b><small>La clave y el texto se borran al cerrar la pestaña.</small></span></label>
+
+    <div class="foot">
+      <button class="btn danger small" id="wipeBtn" type="button">Borrar mis datos de este equipo</button>
+      <span class="msg" id="settingsMsg" role="status"></span>
+      <span style="display:flex;gap:8px">
+        <button class="btn" value="cancel" type="submit" formnovalidate>Cerrar</button>
+        <button class="btn primary" id="saveSettings" value="save" type="submit">Guardar</button>
+      </span>
+    </div>
+  </form>
+</dialog>
+
+<script src="vendor/mammoth.browser.min.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>

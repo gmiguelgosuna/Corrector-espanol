@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ayuda · Profe de apoyo</title>
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Profe de apoyo<span class="tick">✓</span></h1>
+      <p>Ayuda</p>
+    </div>
+    <nav><a class="btn primary" href="index.html">Volver a la herramienta</a></nav>
+  </header>
+
+  <main class="prose">
+    <h1>Cómo empezar</h1>
+    <p>Profe de apoyo revisa la ortografía, la gramática, la puntuación y la sintaxis de tus textos en español. Cada corrección viene con la regla y una explicación breve. Tú decides si la aceptas o no.</p>
+    <p>Para funcionar necesita una <b>clave de API</b>: una contraseña que permite usar un servicio de inteligencia artificial. Solo tienes que pegarla una vez.</p>
+
+    <h2 id="clave">Conseguir tu clave gratis de Mistral (unos 5 minutos)</h2>
+    <div class="box">
+      <ol>
+        <li>Entra en <a href="https://console.mistral.ai" target="_blank" rel="noopener">console.mistral.ai</a> y crea una cuenta con tu correo. Confirma el correo que te envían.</li>
+        <li>Si te lo pide, verifica tu número de teléfono.</li>
+        <li>Elige el plan gratuito (<b>Experiment</b>). Para usarlo, Mistral pide aceptar que tus textos puedan usarse para mejorar su IA.</li>
+        <li>Ve a <b>API Keys</b> y pulsa <b>Create new key</b> (crear clave). Ponle un nombre, por ejemplo «Profe de apoyo».</li>
+        <li>Copia la clave. Solo se muestra una vez.</li>
+        <li>Vuelve a Profe de apoyo, abre <b>Ajustes</b>, pega la clave y pulsa <b>Guardar</b>.</li>
+      </ol>
+    </div>
+    <p>Los nombres de los botones pueden cambiar un poco si Mistral actualiza su web. Si tu profesor/a te ha dado una <b>clave de clase</b>, no necesitas crear cuenta: pégala directamente en Ajustes.</p>
+    <p><b>Edad:</b> consulta las condiciones de uso de Mistral. Es posible que exijan ser mayor de edad o contar con el permiso de tu madre, padre o tutor.</p>
+
+    <h2 id="infomaniak">Usar Infomaniak (opcional, de pago)</h2>
+    <p>Infomaniak es una empresa suiza que no usa tus textos para entrenar su IA. Es de pago (unos céntimos por revisión), así que normalmente lo configura el profesor o la profesora.</p>
+    <ol>
+      <li>En el <a href="https://manager.infomaniak.com" target="_blank" rel="noopener">Manager de Infomaniak</a>, ve a <b>Cloud Computing → AI Tools</b> y activa el producto.</li>
+      <li>Copia el <b>ID del producto</b> y crea un <b>token de API</b>.</li>
+      <li>En Ajustes, elige <b>Infomaniak</b>, pega el token y el ID del producto, y guarda.</li>
+    </ol>
+
+    <h2 id="uso">Cómo revisar un texto</h2>
+    <ol>
+      <li>Pega tu texto o pulsa <b>Subir Word (.docx)</b>. Máximo unas 10 páginas (5.000 palabras).</li>
+      <li>Pulsa <b>Revisar texto</b>. Los textos largos se revisan por secciones; puedes empezar a corregir mientras termina.</li>
+      <li>Toca una palabra subrayada para ver la corrección, la regla y la explicación.</li>
+      <li>Pulsa <b>Aceptar</b> o <b>Rechazar</b>. Lo aceptado se queda marcado en verde.</li>
+      <li>Al terminar, pulsa <b>Copiar texto</b> y pégalo en tu documento, o descárgalo.</li>
+    </ol>
+    <p>La IA puede equivocarse. Si una corrección no te convence, recházala o consúltala con tu profesor/a. El objetivo es aprender, no aceptarlo todo.</p>
+
+    <h2 id="privacidad">¿Quién puede ver mis datos?</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Quién</th><th>¿Ve tu texto?</th><th>Detalles</th></tr></thead>
+        <tbody>
+          <tr><td><b>Mistral</b> o <b>Infomaniak</b></td><td>Sí</td><td>Es quien revisa el texto. En el plan gratuito de Mistral, los textos pueden usarse para entrenar su IA. Infomaniak indica que no los usa.</td></tr>
+          <tr><td>GitHub (donde está la página)</td><td>No</td><td>Solo entrega la página. Tu texto y tu clave nunca pasan por GitHub.</td></tr>
+          <tr><td>Este ordenador o móvil</td><td>Sí</td><td>La clave y el borrador se guardan en este navegador. En un ordenador compartido, activa «Ordenador compartido» en Ajustes.</td></tr>
+          <tr><td>Tu profesor/a</td><td>No</td><td>No hay ningún servidor propio que reciba los textos.</td></tr>
+          <tr><td>Otros estudiantes</td><td>No</td><td>Aunque compartáis una clave de clase, nadie puede leer los textos de otros.</td></tr>
+          <tr><td>La red del centro</td><td>Normalmente no</td><td>La conexión va cifrada. Algunas redes escolares inspeccionan el tráfico; consulta en tu centro.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li><b>No incluyas datos personales</b> en el texto: nombre completo, dirección, teléfono, salud…</li>
+      <li>En un ordenador del aula, marca <b>Ordenador compartido: no guardar nada</b>. Al cerrar la pestaña se borra todo.</li>
+      <li>Puedes borrar todo en cualquier momento con <b>Ajustes → Borrar mis datos de este equipo</b>.</li>
+      <li>Esta página no tiene anuncios ni rastreadores, y no carga nada de otras webs.</li>
+    </ul>
+
+    <h2 id="problemas">Si algo no funciona</h2>
+    <ul>
+      <li><b>«No acepta tu clave»:</b> vuelve a copiarla entera, sin espacios, y pégala en Ajustes.</li>
+      <li><b>«Has alcanzado el límite»:</b> el plan gratuito tiene un límite por minuto. Espera un poco y pulsa <b>Reintentar</b>.</li>
+      <li><b>«No se pudo conectar»:</b> revisa tu conexión. Si sigue fallando en la red del centro, puede que esté bloqueada: avisa a tu profesor/a.</li>
+      <li><b>El Word no se abre:</b> solo se leen archivos <code>.docx</code>. Si tienes un <code>.doc</code> antiguo, guárdalo como <code>.docx</code> o copia y pega el texto.</li>
+    </ul>
+  </main>
+
+  <footer class="foot-links">
+    <a href="index.html">Volver a Profe de apoyo</a>
+  </footer>
+</div>
+</body>
+</html>
