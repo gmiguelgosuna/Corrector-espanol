@@ -2,12 +2,12 @@
 
 Herramienta web gratuita para que estudiantes revisen la **ortografía, gramática, puntuación y sintaxis** de sus textos en español (hasta unas 10 páginas). Cada corrección incluye la regla y una explicación breve, y el estudiante decide si la **acepta o la rechaza**.
 
-**Enlace para compartir con la clase:** https://gmiguelgosuna.github.io/grammar-helper/
+**Enlace para compartir con la clase:** https://gmiguelgosuna.github.io/Corrector-espanol/
 
 ## Para el profesor o la profesora
 
 1. Comparte el enlace con tus estudiantes.
-2. Cada estudiante necesita una **clave de API gratuita de Mistral**. La página [Ayuda](https://gmiguelgosuna.github.io/grammar-helper/ayuda.html#clave) explica paso a paso cómo conseguirla (unos 5 minutos).
+2. Cada estudiante necesita una **clave de API gratuita de Mistral**. La página [Ayuda](https://gmiguelgosuna.github.io/Corrector-espanol/ayuda.html#clave) explica paso a paso cómo conseguirla (unos 5 minutos).
 3. Alternativa: crea tú una clave y compártela en privado con la clase (en la pizarra, por correo…). Nunca la publiques en este repositorio ni en una web. Si se filtra, bórrala en Mistral y crea otra.
 4. Si prefieres que los textos no se usen para entrenar la IA, usa **Infomaniak** (de pago, en Suiza) y elige ese servicio en *Ajustes*.
 
