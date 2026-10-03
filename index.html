@@ -23,7 +23,7 @@
 
   <p class="notice" id="notice">
     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 4.6v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    <span>Tu texto se envía a <b id="providerName">Mistral</b> para revisarlo. No incluyas datos personales (nombre completo, dirección, salud…). <a href="ayuda.html#privacidad">¿Quién puede ver mis datos?</a></span>
+    <span>Tu texto se envía a <b id="providerName">Groq</b> para revisarlo. No incluyas datos personales (nombre completo, dirección, salud…). <a href="ayuda.html#privacidad">¿Quién puede ver mis datos?</a></span>
   </p>
 
   <main class="layout">
@@ -116,8 +116,9 @@
     <div class="field">
       <span class="label">Servicio de IA</span>
       <div class="seg">
-        <label><input type="radio" name="provider" value="mistral" checked> <span>Mistral<small>Plan gratuito. Recomendado.</small></span></label>
+        <label><input type="radio" name="provider" value="groq" checked> <span>Groq<small>Gratis. Recomendado.</small></span></label>
         <label><input type="radio" name="provider" value="infomaniak"> <span>Infomaniak<small>De pago, en Suiza.</small></span></label>
+        <label><input type="radio" name="provider" value="mistral"> <span>Mistral<small>De pago.</small></span></label>
       </div>
     </div>
 
@@ -126,8 +127,10 @@
       <div class="keyrow">
         <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Pega aquí tu clave">
         <button class="btn small" id="toggleKey" type="button">Mostrar</button>
+        <button class="btn small" id="testKey" type="button">Probar clave</button>
       </div>
-      <span class="hint" id="keyHint">¿No tienes clave? <a href="ayuda.html#clave" target="_blank" rel="noopener">Consíguela gratis en 5 minutos</a>.</span>
+      <span class="hint" id="testMsg" role="status"></span>
+      <span class="hint" id="keyHint">¿No tienes clave? <a href="ayuda.html#clave" target="_blank" rel="noopener">Consigue una gratis de Groq en 5 minutos</a>.</span>
     </div>
 
     <div id="infomaniakFields" hidden>

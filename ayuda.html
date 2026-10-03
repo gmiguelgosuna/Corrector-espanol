@@ -20,21 +20,22 @@
   <main class="prose">
     <h1>Cómo empezar</h1>
     <p>Profe de apoyo revisa la ortografía, la gramática, la puntuación y la sintaxis de tus textos en español. Cada corrección viene con la regla y una explicación breve. Tú decides si la aceptas o no.</p>
-    <p>Para funcionar necesita una <b>clave de API</b>: una contraseña que permite usar un servicio de inteligencia artificial. Solo tienes que pegarla una vez.</p>
+    <p>Para funcionar necesita una <b>clave de API</b>: una contraseña que permite usar un servicio de inteligencia artificial. Recomendamos <b>Groq</b>, que es gratis. Solo tienes que pegarla una vez.</p>
 
-    <h2 id="clave">Conseguir tu clave gratis de Mistral (unos 5 minutos)</h2>
+    <h2 id="clave">Conseguir tu clave gratis de Groq (unos 5 minutos)</h2>
     <div class="box">
       <ol>
-        <li>Entra en <a href="https://console.mistral.ai" target="_blank" rel="noopener">console.mistral.ai</a> y crea una cuenta con tu correo. Confirma el correo que te envían.</li>
-        <li>Si te lo pide, verifica tu número de teléfono.</li>
-        <li>Elige el plan gratuito (<b>Experiment</b>). Para usarlo, Mistral pide aceptar que tus textos puedan usarse para mejorar su IA.</li>
-        <li>Ve a <b>API Keys</b> y pulsa <b>Create new key</b> (crear clave). Ponle un nombre, por ejemplo «Profe de apoyo».</li>
-        <li>Copia la clave. Solo se muestra una vez.</li>
-        <li>Vuelve a Profe de apoyo, abre <b>Ajustes</b>, pega la clave y pulsa <b>Guardar</b>.</li>
+        <li>Entra en <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> y crea una cuenta (con tu correo o con Google). No hace falta tarjeta.</li>
+        <li>En el menú, ve a <b>API Keys</b> y pulsa <b>Create API Key</b> (crear clave). Ponle un nombre, por ejemplo «Profe de apoyo».</li>
+        <li>Copia la clave: empieza por <code>gsk_</code> y solo se muestra una vez.</li>
+        <li>Vuelve a Profe de apoyo, abre <b>Ajustes</b>, elige <b>Groq</b>, pega la clave y pulsa <b>Probar clave</b>. Si sale «Clave correcta ✓», pulsa <b>Guardar</b>.</li>
       </ol>
     </div>
-    <p>Los nombres de los botones pueden cambiar un poco si Mistral actualiza su web. Si tu profesor/a te ha dado una <b>clave de clase</b>, no necesitas crear cuenta: pégala directamente en Ajustes.</p>
-    <p><b>Edad:</b> consulta las condiciones de uso de Mistral. Es posible que exijan ser mayor de edad o contar con el permiso de tu madre, padre o tutor.</p>
+    <p><b>Límites del plan gratuito:</b> Groq limita cuánto texto se puede revisar por minuto y por día. En la práctica alcanza para varios textos largos al día. Si un texto es muy largo, verás «esperando al límite por minuto»: no cierres la página, sigue sola.</p>
+    <p><b>Edad:</b> las condiciones de Groq exigen tener 18 años o que tu madre, padre o tutor las acepte por ti.</p>
+
+    <h2 id="mistral">Mistral (de pago)</h2>
+    <p>El plan gratuito de Mistral ya no permite usar claves de API: hay que pulsar <b>Upgrade</b> y pagar por uso. Si tu centro tiene una cuenta de pago, elige <b>Mistral</b> en Ajustes y pega la clave.</p>
 
     <h2 id="infomaniak">Usar Infomaniak (opcional, de pago)</h2>
     <p>Infomaniak es una empresa suiza que no usa tus textos para entrenar su IA. Es de pago (unos céntimos por revisión), así que normalmente lo configura el profesor o la profesora.</p>
@@ -59,7 +60,7 @@
       <table>
         <thead><tr><th>Quién</th><th>¿Ve tu texto?</th><th>Detalles</th></tr></thead>
         <tbody>
-          <tr><td><b>Mistral</b> o <b>Infomaniak</b></td><td>Sí</td><td>Es quien revisa el texto. En el plan gratuito de Mistral, los textos pueden usarse para entrenar su IA. Infomaniak indica que no los usa.</td></tr>
+          <tr><td><b>Groq</b>, <b>Infomaniak</b> o <b>Mistral</b> (el que elijas)</td><td>Sí</td><td>Es quien revisa el texto. Groq (empresa de EE. UU.) indica que no usa los textos para entrenar su IA ni los guarda de forma permanente. Infomaniak (Suiza) tampoco los usa para entrenar.</td></tr>
           <tr><td>GitHub (donde está la página)</td><td>No</td><td>Solo entrega la página. Tu texto y tu clave nunca pasan por GitHub.</td></tr>
           <tr><td>Este ordenador o móvil</td><td>Sí</td><td>La clave y el borrador se guardan en este navegador. En un ordenador compartido, activa «Ordenador compartido» en Ajustes.</td></tr>
           <tr><td>Tu profesor/a</td><td>No</td><td>No hay ningún servidor propio que reciba los textos.</td></tr>
@@ -77,8 +78,8 @@
 
     <h2 id="problemas">Si algo no funciona</h2>
     <ul>
-      <li><b>«No acepta tu clave»:</b> vuelve a copiarla entera, sin espacios, y pégala en Ajustes.</li>
-      <li><b>«Has alcanzado el límite»:</b> el plan gratuito tiene un límite por minuto. Espera un poco y pulsa <b>Reintentar</b>.</li>
+      <li><b>«No acepta tu clave»:</b> vuelve a copiarla entera, sin espacios, comprueba que has elegido el servicio correcto y pulsa <b>Probar clave</b> en Ajustes. Las claves de Groq empiezan por <code>gsk_</code>.</li>
+      <li><b>«Límite diario»:</b> el plan gratuito de Groq tiene un máximo por día. Inténtalo mañana: lo ya revisado no se pierde mientras no cierres la página.</li>
       <li><b>«No se pudo conectar»:</b> revisa tu conexión. Si sigue fallando en la red del centro, puede que esté bloqueada: avisa a tu profesor/a.</li>
       <li><b>El Word no se abre:</b> solo se leen archivos <code>.docx</code>. Si tienes un <code>.doc</code> antiguo, guárdalo como <code>.docx</code> o copia y pega el texto.</li>
     </ul>

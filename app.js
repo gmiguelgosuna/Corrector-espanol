@@ -7,13 +7,25 @@
   const MAX_WORDS = 5000;
   const CHUNK_WORDS = 450;
 
+  const DEFAULT_PROVIDER = 'groq';
   const PROVIDERS = {
+    groq: {
+      name: 'Groq',
+      url: () => 'https://api.groq.com/openai/v1/chat/completions',
+      modelsUrl: () => 'https://api.groq.com/openai/v1/models',
+      models: () => ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile'],
+      prefer: [/gpt-oss-120b/i, /llama-3\.3-70b/i, /qwen/i, /llama/i],
+      concurrency: 1, // el plan gratuito limita los tokens por minuto
+      gapMs: 0,
+      free: true,
+    },
     mistral: {
       name: 'Mistral',
       url: () => 'https://api.mistral.ai/v1/chat/completions',
+      modelsUrl: () => 'https://api.mistral.ai/v1/models',
       models: () => ['mistral-large-latest', 'mistral-medium-latest', 'mistral-small-latest'],
       concurrency: 1,
-      gapMs: 1100, // el plan gratuito admite ~1 petición por segundo
+      gapMs: 1100,
     },
     infomaniak: {
       name: 'Infomaniak',
@@ -238,7 +250,8 @@
   if (!document.getElementById('input')) return; // página de ayuda u otra
 
   // ---------- Estado ----------
-  let settings = Object.assign({ provider: 'mistral', key: '', productId: '', model: '' }, store.read('settings') || {});
+  let settings = Object.assign({ provider: DEFAULT_PROVIDER, key: '', productId: '', model: '' }, store.read('settings') || {});
+  if (!PROVIDERS[settings.provider]) settings.provider = DEFAULT_PROVIDER;
   let doc = '';
   let chunks = [];
   let suggestions = [];
@@ -248,6 +261,8 @@
   const hiddenTypes = new Set();
   let fatal = null; // { kind, message }
   let detectedModel = null;
+  let detectTried = false;
+  let waitUntil = 0; // fin de la espera por límite gratuito (ms), 0 si no se espera
 
   // ---------- Elementos ----------
   const $ = (id) => document.getElementById(id);
@@ -259,7 +274,7 @@
     download: $('downloadBtn'), how: $('howPanel'), sum: $('sumPanel'), stats: $('stats'), filters: $('filters'),
     listPanel: $('listPanel'), list: $('list'), acceptAll: $('acceptAll'), rejectAll: $('rejectAll'),
     providerName: $('providerName'), dlg: $('settings'), form: $('settingsForm'), apiKey: $('apiKey'),
-    toggleKey: $('toggleKey'), productId: $('productId'), model: $('model'), shared: $('shared'),
+    toggleKey: $('toggleKey'), testKey: $('testKey'), testMsg: $('testMsg'), productId: $('productId'), model: $('model'), shared: $('shared'),
     infoFields: $('infomaniakFields'), wipe: $('wipeBtn'), msg: $('settingsMsg'), openSettings: $('openSettings'),
   };
 
@@ -394,33 +409,79 @@
     constructor(kind, message, isFatal) { super(message); this.kind = kind; this.fatal = !!isFatal; }
   }
 
+  /** Lee el mensaje de error que devuelve el servicio (si lo hay), en una sola línea corta. */
+  async function errorDetail(res) {
+    const raw = await res.text().catch(() => '');
+    let msg = raw;
+    try {
+      const j = JSON.parse(raw);
+      const e = j.error || j;
+      msg = (typeof e === 'string' ? e : e.message || e.detail || j.message || j.detail || '') || raw;
+      if (typeof msg !== 'string') msg = JSON.stringify(msg);
+    } catch (e) { /* texto plano */ }
+    return msg.replace(/\s+/g, ' ').trim().slice(0, 220);
+  }
+
+  /** Segundos que pide esperar el servicio tras un 429 (cabeceras retry-after o x-ratelimit-reset-*). */
+  function waitSeconds(res) {
+    const ra = parseFloat(res.headers.get('retry-after'));
+    if (ra > 0) return ra;
+    const reset = res.headers.get('x-ratelimit-reset-tokens') || res.headers.get('x-ratelimit-reset-requests');
+    if (reset) {
+      let total = 0;
+      const re = /([\d.]+)\s*(ms|h|m|s)/g;
+      let m;
+      while ((m = re.exec(reset))) total += parseFloat(m[1]) * ({ ms: 0.001, s: 1, m: 60, h: 3600 }[m[2]]);
+      if (total > 0) return total;
+    }
+    return 0;
+  }
+
+  /** Espera mostrando una cuenta atrás en la barra de progreso. */
+  async function waitWithCountdown(seconds) {
+    waitUntil = Date.now() + seconds * 1000;
+    renderProgress();
+    const timer = setInterval(renderProgress, 1000);
+    try { await sleep(seconds * 1000); } finally { clearInterval(timer); waitUntil = 0; renderProgress(); }
+  }
+
+  async function detectModel(p) {
+    if (!p.modelsUrl || !p.prefer || detectTried) return null;
+    detectTried = true;
+    try {
+      const r = await fetch(p.modelsUrl(settings), { headers: { Authorization: 'Bearer ' + settings.key } });
+      if (!r.ok) return null;
+      const j = await r.json();
+      const ids = (j.data || j.models || [])
+        .map((m) => (typeof m === 'string' ? m : m.id || m.name))
+        .filter((id) => id && !/whisper|tts|guard|embed|vision|audio|orpheus|playai/i.test(id));
+      for (const re of p.prefer) {
+        const hit = ids.find((id) => re.test(id));
+        if (hit) return hit;
+      }
+      return ids[0] || null;
+    } catch (e) { return null; }
+  }
+
   async function resolveModel(p, attempt) {
     if (settings.provider === 'infomaniak' && settings.model) return settings.model;
-    if (detectedModel && attempt === 0) return detectedModel;
-    if (settings.provider === 'infomaniak' && !detectedModel) {
-      try {
-        const r = await fetch(p.modelsUrl(settings), { headers: { Authorization: 'Bearer ' + settings.key } });
-        if (r.ok) {
-          const j = await r.json();
-          const ids = (j.data || j.models || []).map((m) => (typeof m === 'string' ? m : m.id || m.name)).filter(Boolean);
-          for (const re of p.prefer) {
-            const hit = ids.find((id) => re.test(id));
-            if (hit) { detectedModel = hit; return hit; }
-          }
-          if (ids[0]) { detectedModel = ids[0]; return ids[0]; }
-        }
-      } catch (e) { /* usar la lista fija */ }
+    if (attempt === 0) {
+      if (!detectedModel) detectedModel = await detectModel(p);
+      if (detectedModel) return detectedModel;
     }
     const list = p.models();
     return list[Math.min(attempt, list.length - 1)];
   }
 
   async function callAI(text) {
-    const p = PROVIDERS[settings.provider] || PROVIDERS.mistral;
+    const p = PROVIDERS[settings.provider] || PROVIDERS[DEFAULT_PROVIDER];
     let useFormat = true;
+    let useReasoning = true;
     let modelAttempt = 0;
     let parseRetries = 0;
-    for (let attempt = 0; attempt < 8; attempt++) {
+    let netRetries = 0;
+    let rateWaits = 0;
+    for (let attempt = 0; attempt < 24; attempt++) {
       const model = await resolveModel(p, modelAttempt);
       const body = {
         model,
@@ -431,6 +492,7 @@
         ],
       };
       if (useFormat) body.response_format = { type: 'json_object' };
+      if (useReasoning && settings.provider === 'groq' && /gpt-oss/i.test(model)) body.reasoning_effort = 'low';
 
       let res;
       try {
@@ -440,31 +502,49 @@
           body: JSON.stringify(body),
         });
       } catch (e) {
-        if (attempt < 2) { await sleep(1500 * (attempt + 1)); continue; }
+        if (netRetries++ < 2) { await sleep(1500 * netRetries); continue; }
         throw new AppError('network', `No se pudo conectar con ${p.name}. Revisa tu conexión a internet. Si el problema continúa, puede que tu red bloquee el servicio: avisa a tu profesor/a.`, true);
       }
 
-      if (res.status === 401 || res.status === 403) {
-        throw new AppError('key', `${p.name} no acepta tu clave. Comprueba que la has copiado entera en Ajustes.`, true);
+      if (res.status === 401) {
+        const detail = await errorDetail(res);
+        let msg = `${p.name} no acepta tu clave: no es válida o tu plan no permite usar la API.`;
+        if (settings.provider === 'mistral') msg += ' El plan Free de Mistral ya no activa claves de API: elige Groq (gratis) en Ajustes.';
+        else msg += ' Comprueba que la has copiado entera en Ajustes.';
+        throw new AppError('key', msg + (detail ? ` (Mensaje de ${p.name}: «${detail}»)` : ''), true);
       }
-      if (res.status === 429 || res.status >= 500) {
-        if (attempt < 5) {
-          const ra = parseFloat(res.headers.get('retry-after'));
-          await sleep(ra > 0 ? Math.min(ra, 30) * 1000 : 2000 * Math.pow(2, Math.min(attempt, 3)));
+      if (res.status === 403) {
+        const detail = await errorDetail(res);
+        if (!(settings.provider === 'infomaniak' && settings.model) && modelAttempt < p.models().length - 1) {
+          detectedModel = null; detectTried = true; modelAttempt++; continue;
+        }
+        throw new AppError('key', `${p.name} no permite usar este servicio con tu clave.` + (detail ? ` (Mensaje de ${p.name}: «${detail}»)` : ''), true);
+      }
+      if (res.status === 429) {
+        const detail = await errorDetail(res);
+        const wait = waitSeconds(res);
+        const daily = /per day|\bTPD\b|\bRPD\b|daily|diari/i.test(detail) || wait > 120;
+        if (!daily && rateWaits++ < 10) {
+          await waitWithCountdown(Math.min(Math.max(wait || 5 * rateWaits, 2), 60));
           continue;
         }
-        throw new AppError('limit', res.status === 429
-          ? `Has alcanzado el límite de uso de ${p.name} por ahora. Espera unos minutos y pulsa «Reintentar».`
-          : `${p.name} no responde ahora mismo. Inténtalo de nuevo en unos minutos.`);
+        throw new AppError('limit', daily
+          ? `Has alcanzado el límite diario gratuito de ${p.name}. Inténtalo mañana; lo ya revisado no se pierde.`
+          : `Has alcanzado el límite de uso de ${p.name} por ahora. Espera unos minutos y pulsa «Reintentar».`, daily);
+      }
+      if (res.status >= 500) {
+        if (rateWaits++ < 4) { await sleep(2000 * Math.pow(2, Math.min(rateWaits, 3))); continue; }
+        throw new AppError('limit', `${p.name} no responde ahora mismo. Inténtalo de nuevo en unos minutos.`);
       }
       if (res.status === 400 || res.status === 404 || res.status === 422) {
-        const detail = await res.text().catch(() => '');
+        const detail = await errorDetail(res);
+        if (useReasoning && body.reasoning_effort && /reasoning/i.test(detail)) { useReasoning = false; continue; }
         if (useFormat && /response_format|json/i.test(detail)) { useFormat = false; continue; }
         if (/model/i.test(detail) && !(settings.provider === 'infomaniak' && settings.model) && modelAttempt < p.models().length - 1) {
-          detectedModel = null; modelAttempt++; continue;
+          detectedModel = null; detectTried = true; modelAttempt++; continue;
         }
         if (useFormat) { useFormat = false; continue; }
-        throw new AppError('bad', `${p.name} rechazó la petición (${res.status}). ${settings.provider === 'infomaniak' ? 'Revisa el ID del producto y el modelo en Ajustes.' : ''}`.trim(), settings.provider === 'infomaniak');
+        throw new AppError('bad', `${p.name} rechazó la petición (${res.status}).${settings.provider === 'infomaniak' ? ' Revisa el ID del producto y el modelo en Ajustes.' : ''}` + (detail ? ` (Mensaje de ${p.name}: «${detail}»)` : ''), settings.provider === 'infomaniak');
       }
       if (!res.ok) throw new AppError('bad', `Error inesperado de ${p.name} (${res.status}).`);
 
@@ -483,7 +563,7 @@
 
   async function runQueue() {
     const token = ++runToken;
-    const p = PROVIDERS[settings.provider] || PROVIDERS.mistral;
+    const p = PROVIDERS[settings.provider] || PROVIDERS[DEFAULT_PROVIDER];
     const worker = async () => {
       for (;;) {
         if (token !== runToken || fatal) return;
@@ -600,7 +680,11 @@
     el.progressBar.style.width = total ? Math.round((finished / total) * 100) + '%' : '0';
     if (running && !fatal) {
       const current = Math.min(finished + 1, total);
-      el.progressLabel.textContent = `Revisando sección ${current} de ${total}… Puedes ir aceptando o rechazando mientras tanto.`;
+      const left = Math.ceil((waitUntil - Date.now()) / 1000);
+      const pname = (PROVIDERS[settings.provider] || PROVIDERS[DEFAULT_PROVIDER]).name;
+      el.progressLabel.textContent = left > 0
+        ? `Sección ${current} de ${total}: esperando al límite por minuto de ${pname} (${left} s)… No cierres la página.`
+        : `Revisando sección ${current} de ${total}… Puedes ir aceptando o rechazando mientras tanto.`;
       el.progress.hidden = false;
     } else {
       el.progress.hidden = true;
@@ -800,6 +884,8 @@
     el.shared.checked = store.isShared();
     el.msg.textContent = message || '';
     el.msg.style.color = message ? 'var(--warn-ink)' : '';
+    el.msg.dataset.warned = '';
+    setMsg(el.testMsg, '', '');
     wipeArmed = false;
     el.wipe.textContent = 'Borrar mis datos de este equipo';
     syncProviderUI();
@@ -813,6 +899,52 @@
     el.apiKey.type = show ? 'text' : 'password';
     el.toggleKey.textContent = show ? 'Ocultar' : 'Mostrar';
   });
+  /** Si la clave parece de otro servicio, devuelve un aviso (y cambia el servicio cuando lo reconoce). */
+  function keyMismatch(prov, key) {
+    if (/^sk-ant-/.test(key)) return 'Esta clave es de Claude (Anthropic), que esta herramienta no usa. Crea una clave gratis de Groq.';
+    if (/^gsk_/.test(key) && prov !== 'groq') {
+      el.form.elements.provider.value = 'groq';
+      syncProviderUI();
+      return 'Esta clave es de Groq: he cambiado el servicio a Groq. Pulsa «Guardar» otra vez.';
+    }
+    if (prov === 'groq' && key && !/^gsk_/.test(key)) return 'Las claves de Groq empiezan por «gsk_». Comprueba que has elegido el servicio correcto.';
+    return '';
+  }
+
+  function setMsg(target, text, kind) {
+    target.textContent = text;
+    target.style.color = kind === 'err' ? 'var(--err-ink)' : kind === 'ok' ? 'var(--fixed-ink)' : kind === 'warn' ? 'var(--warn-ink)' : '';
+  }
+
+  el.testKey.addEventListener('click', async () => {
+    const prov = el.form.elements.provider.value;
+    const key = el.apiKey.value.trim();
+    const pid = el.productId.value.trim();
+    const p = PROVIDERS[prov];
+    if (!key) { setMsg(el.testMsg, 'Primero pega la clave.', 'err'); return; }
+    if (prov === 'infomaniak' && !pid) { setMsg(el.testMsg, 'Falta el ID del producto.', 'err'); return; }
+    const hint = keyMismatch(prov, key);
+    if (hint && /^sk-ant-/.test(key)) { setMsg(el.testMsg, hint, 'err'); return; }
+    setMsg(el.testMsg, 'Probando la clave…', '');
+    el.testKey.disabled = true;
+    try {
+      const res = await fetch(PROVIDERS[el.form.elements.provider.value].modelsUrl({ productId: pid }), { headers: { Authorization: 'Bearer ' + key } });
+      const name = PROVIDERS[el.form.elements.provider.value].name;
+      if (res.ok) {
+        setMsg(el.testMsg, `Clave correcta ✓ ${name} la acepta. Pulsa «Guardar».`, 'ok');
+      } else {
+        const detail = await errorDetail(res);
+        let msg = `${name} rechaza la clave (${res.status}).`;
+        if (el.form.elements.provider.value === 'mistral' && res.status === 401) msg += ' El plan Free de Mistral ya no activa claves de API: usa Groq.';
+        setMsg(el.testMsg, msg + (detail ? ` Mensaje: «${detail}»` : ''), 'err');
+      }
+    } catch (e) {
+      setMsg(el.testMsg, `No se pudo conectar con ${p.name}. Revisa tu conexión; si sigue fallando, puede que tu red lo bloquee.`, 'err');
+    } finally {
+      el.testKey.disabled = false;
+    }
+  });
+
   el.form.addEventListener('submit', (e) => {
     const action = e.submitter && e.submitter.value;
     if (action !== 'save') return;
@@ -821,10 +953,16 @@
     const key = el.apiKey.value.trim();
     const pid = el.productId.value.trim();
     if (!key) { el.msg.style.color = 'var(--err-ink)'; el.msg.textContent = 'Falta la clave.'; el.apiKey.focus(); return; }
+    const mismatch = keyMismatch(prov, key);
+    if (mismatch && !(prov === 'groq' && !/^sk-ant-/.test(key) && el.msg.dataset.warned === key)) {
+      setMsg(el.msg, mismatch, /^sk-ant-/.test(key) ? 'err' : 'warn');
+      if (prov === 'groq' && !/^(sk-ant-|gsk_)/.test(key)) el.msg.dataset.warned = key; // segundo «Guardar» lo acepta igualmente
+      return;
+    }
     if (prov === 'infomaniak' && !pid) { el.msg.style.color = 'var(--err-ink)'; el.msg.textContent = 'Falta el ID del producto.'; el.productId.focus(); return; }
     const changed = prov !== settings.provider || key !== settings.key || pid !== settings.productId || el.model.value.trim() !== settings.model;
     settings = { provider: prov, key, productId: pid, model: el.model.value.trim() };
-    if (changed) detectedModel = null;
+    if (changed) { detectedModel = null; detectTried = false; }
     if (el.shared.checked !== store.isShared()) store.setShared(el.shared.checked);
     store.write('settings', settings);
     if (!el.reviewMode.hidden) store.write('draft', doc); else store.write('draft', el.input.value);
@@ -841,13 +979,14 @@
       return;
     }
     store.wipe();
-    settings = { provider: 'mistral', key: '', productId: '', model: '' };
+    settings = { provider: DEFAULT_PROVIDER, key: '', productId: '', model: '' };
     detectedModel = null;
+    detectTried = false;
     el.apiKey.value = '';
     el.productId.value = '';
     el.model.value = '';
     el.shared.checked = false;
-    el.form.elements.provider.value = 'mistral';
+    el.form.elements.provider.value = DEFAULT_PROVIDER;
     syncProviderUI();
     if (el.reviewMode.hidden) { el.input.value = ''; updateCount(); }
     wipeArmed = false;
@@ -858,7 +997,7 @@
   });
 
   function updateProviderName() {
-    el.providerName.textContent = (PROVIDERS[settings.provider] || PROVIDERS.mistral).name;
+    el.providerName.textContent = (PROVIDERS[settings.provider] || PROVIDERS[DEFAULT_PROVIDER]).name;
   }
 
   // ---------- Inicio ----------
