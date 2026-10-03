@@ -19,13 +19,14 @@
       gapMs: 0,
       free: true,
     },
-    mistral: {
-      name: 'Mistral',
-      url: () => 'https://api.mistral.ai/v1/chat/completions',
-      modelsUrl: () => 'https://api.mistral.ai/v1/models',
-      models: () => ['mistral-large-latest', 'mistral-medium-latest', 'mistral-small-latest'],
+    custom: {
+      get name() { return customHost(settings && settings.baseUrl) || 'tu proveedor'; },
+      url: (s) => customUrl(s.baseUrl, '/chat/completions'),
+      modelsUrl: (s) => customUrl(s.baseUrl, '/models'),
+      models: () => [],
+      prefer: [/./],
       concurrency: 1,
-      gapMs: 1100,
+      gapMs: 0,
     },
     infomaniak: {
       name: 'Infomaniak',
@@ -37,6 +38,15 @@
       gapMs: 0,
     },
   };
+
+  /** Une la dirección base de un proveedor compatible con OpenAI con la ruta pedida. */
+  function customUrl(base, path) {
+    const b = String(base || '').trim().replace(/\/+$/, '').replace(/\/(chat\/completions|models)$/, '');
+    return b + path;
+  }
+  function customHost(base) {
+    try { return new URL(String(base || '').trim()).hostname; } catch (e) { return ''; }
+  }
 
   const TYPES = {
     ortografia: 'Ortografía',
@@ -273,7 +283,13 @@
   if (!document.getElementById('input')) return; // página de ayuda u otra
 
   // ---------- Estado ----------
-  let settings = Object.assign({ provider: DEFAULT_PROVIDER, key: '', productId: '', model: '', variant: 'auto' }, store.read('settings') || {});
+  let settings = Object.assign({ provider: DEFAULT_PROVIDER, key: '', productId: '', model: '', baseUrl: '', customModel: '', variant: 'auto' }, store.read('settings') || {});
+  if (settings.provider === 'mistral') {
+    // Mistral dejó de ser una opción propia: se conserva como «Otro proveedor».
+    settings.provider = 'custom';
+    settings.baseUrl = settings.baseUrl || 'https://api.mistral.ai/v1';
+    settings.customModel = settings.customModel || 'mistral-large-latest';
+  }
   if (!PROVIDERS[settings.provider]) settings.provider = DEFAULT_PROVIDER;
   let doc = '';
   let chunks = [];
@@ -298,7 +314,7 @@
     listPanel: $('listPanel'), list: $('list'), acceptAll: $('acceptAll'), rejectAll: $('rejectAll'),
     providerName: $('providerName'), dlg: $('settings'), form: $('settingsForm'), apiKey: $('apiKey'),
     variant: $('variant'), toggleKey: $('toggleKey'), testKey: $('testKey'), testMsg: $('testMsg'), productId: $('productId'), model: $('model'), shared: $('shared'),
-    infoFields: $('infomaniakFields'), wipe: $('wipeBtn'), msg: $('settingsMsg'), openSettings: $('openSettings'),
+    infoFields: $('infomaniakFields'), customFields: $('customFields'), baseUrl: $('baseUrl'), customModel: $('customModel'), wipe: $('wipeBtn'), msg: $('settingsMsg'), openSettings: $('openSettings'),
   };
 
   // ---------- Modo edición ----------
@@ -373,6 +389,7 @@
   function hasCredentials() {
     if (!settings.key) return false;
     if (settings.provider === 'infomaniak' && !settings.productId) return false;
+    if (settings.provider === 'custom' && !settings.baseUrl) return false;
     return true;
   }
 
@@ -488,11 +505,13 @@
 
   async function resolveModel(p, attempt) {
     if (settings.provider === 'infomaniak' && settings.model) return settings.model;
+    if (settings.provider === 'custom' && settings.customModel) return settings.customModel;
     if (attempt === 0) {
       if (!detectedModel) detectedModel = await detectModel(p);
       if (detectedModel) return detectedModel;
     }
     const list = p.models();
+    if (!list.length) throw new AppError('bad', `No se pudo elegir un modelo de ${p.name}. Escribe el nombre del modelo en Ajustes.`, true);
     return list[Math.min(attempt, list.length - 1)];
   }
 
@@ -532,7 +551,7 @@
       if (res.status === 401) {
         const detail = await errorDetail(res);
         let msg = `${p.name} no acepta tu clave: no es válida o tu plan no permite usar la API.`;
-        if (settings.provider === 'mistral') msg += ' Mistral necesita un plan de pago para usar claves de API. También puedes elegir Infomaniak o Groq en Ajustes.';
+        if (settings.provider === 'custom') msg += ' Comprueba la clave, la dirección del servicio y que tu plan permite usar la API.';
         else msg += ' Comprueba que la has copiado entera en Ajustes.';
         throw new AppError('key', msg + (detail ? ` (Mensaje de ${p.name}: «${detail}»)` : ''), true);
       }
@@ -896,6 +915,7 @@
   function syncProviderUI() {
     const prov = el.form.elements.provider.value;
     el.infoFields.hidden = prov !== 'infomaniak';
+    el.customFields.hidden = prov !== 'custom';
   }
   function openSettings(message) {
     el.form.elements.provider.value = settings.provider;
@@ -903,6 +923,8 @@
     el.apiKey.type = 'password';
     el.toggleKey.textContent = 'Mostrar';
     el.productId.value = settings.productId || '';
+    el.baseUrl.value = settings.baseUrl || '';
+    el.customModel.value = settings.customModel || '';
     el.model.value = settings.model || '';
     el.shared.checked = store.isShared();
     el.msg.textContent = message || '';
@@ -924,7 +946,7 @@
   });
   /** Si la clave parece de otro servicio, devuelve un aviso (y cambia el servicio cuando lo reconoce). */
   function keyMismatch(prov, key) {
-    if (/^sk-ant-/.test(key)) return 'Esta clave es de Claude (Anthropic). Aquí puedes usar una clave de Infomaniak, Groq o Mistral.';
+    if (/^sk-ant-/.test(key)) return 'Esta clave es de Claude (Anthropic), que no usa el formato compatible con OpenAI. Aquí puedes usar una clave de Infomaniak, Groq u otro proveedor compatible.';
     if (/^gsk_/.test(key) && prov !== 'groq') {
       el.form.elements.provider.value = 'groq';
       syncProviderUI();
@@ -946,23 +968,26 @@
     const p = PROVIDERS[prov];
     if (!key) { setMsg(el.testMsg, 'Primero pega la clave.', 'err'); return; }
     if (prov === 'infomaniak' && !pid) { setMsg(el.testMsg, 'Falta el ID del producto.', 'err'); return; }
+    const base = el.baseUrl.value.trim();
+    if (prov === 'custom' && !/^https:\/\//i.test(base)) { setMsg(el.testMsg, 'Escribe la dirección del servicio (empieza por https://).', 'err'); return; }
     const hint = keyMismatch(prov, key);
     if (hint && /^sk-ant-/.test(key)) { setMsg(el.testMsg, hint, 'err'); return; }
     setMsg(el.testMsg, 'Probando la clave…', '');
     el.testKey.disabled = true;
     try {
-      const res = await fetch(PROVIDERS[el.form.elements.provider.value].modelsUrl({ productId: pid }), { headers: { Authorization: 'Bearer ' + key } });
-      const name = PROVIDERS[el.form.elements.provider.value].name;
+      const cur = el.form.elements.provider.value;
+      const res = await fetch(PROVIDERS[cur].modelsUrl({ productId: pid, baseUrl: base }), { headers: { Authorization: 'Bearer ' + key } });
+      const name = cur === 'custom' ? (customHost(base) || 'el proveedor') : PROVIDERS[cur].name;
       if (res.ok) {
         setMsg(el.testMsg, `Clave correcta ✓ ${name} la acepta. Pulsa «Guardar».`, 'ok');
       } else {
         const detail = await errorDetail(res);
         let msg = `${name} rechaza la clave (${res.status}).`;
-        if (el.form.elements.provider.value === 'mistral' && res.status === 401) msg += ' Mistral necesita un plan de pago para usar claves de API. También puedes elegir Infomaniak o Groq.';
+        if (cur === 'custom' && res.status === 404) msg += ' Revisa la dirección del servicio.';
         setMsg(el.testMsg, msg + (detail ? ` Mensaje: «${detail}»` : ''), 'err');
       }
     } catch (e) {
-      setMsg(el.testMsg, `No se pudo conectar con ${p.name}. Revisa tu conexión; si sigue fallando, puede que tu red lo bloquee.`, 'err');
+      setMsg(el.testMsg, `No se pudo conectar con ${prov === 'custom' ? (customHost(base) || 'el proveedor') : p.name}. Revisa la dirección y tu conexión; algunos servicios no aceptan llamadas directas desde una página web.`, 'err');
     } finally {
       el.testKey.disabled = false;
     }
@@ -983,8 +1008,11 @@
       return;
     }
     if (prov === 'infomaniak' && !pid) { el.msg.style.color = 'var(--err-ink)'; el.msg.textContent = 'Falta el ID del producto.'; el.productId.focus(); return; }
-    const changed = prov !== settings.provider || key !== settings.key || pid !== settings.productId || el.model.value.trim() !== settings.model;
-    settings = { provider: prov, key, productId: pid, model: el.model.value.trim(), variant: settings.variant || 'auto' };
+    const base = el.baseUrl.value.trim();
+    const cmodel = el.customModel.value.trim();
+    if (prov === 'custom' && !/^https:\/\//i.test(base)) { setMsg(el.msg, 'Escribe la dirección del servicio (empieza por https://).', 'err'); el.baseUrl.focus(); return; }
+    const changed = prov !== settings.provider || key !== settings.key || pid !== settings.productId || el.model.value.trim() !== settings.model || base !== settings.baseUrl || cmodel !== settings.customModel;
+    settings = { provider: prov, key, productId: pid, model: el.model.value.trim(), baseUrl: base, customModel: cmodel, variant: settings.variant || 'auto' };
     if (changed) { detectedModel = null; detectTried = false; }
     if (el.shared.checked !== store.isShared()) store.setShared(el.shared.checked);
     store.write('settings', settings);
@@ -1002,7 +1030,9 @@
       return;
     }
     store.wipe();
-    settings = { provider: DEFAULT_PROVIDER, key: '', productId: '', model: '', variant: 'auto' };
+    settings = { provider: DEFAULT_PROVIDER, key: '', productId: '', model: '', baseUrl: '', customModel: '', variant: 'auto' };
+    el.baseUrl.value = '';
+    el.customModel.value = '';
     el.variant.value = 'auto';
     detectedModel = null;
     detectTried = false;

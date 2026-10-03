@@ -46,20 +46,28 @@
     </div>
     <p><b>Uso incluido:</b> unos 6 textos largos al día por cuenta. Si un texto es muy largo, verás «esperando al límite por minuto»: la revisión sigue sola en unos segundos.</p>
     <p><b>Edad:</b> las condiciones de Groq piden tener 18 años o que tu madre, padre o tutor las acepte.</p>
-    <p><b>Nombre:</b> Groq se escribe con «q» (console.groq.com) y es un servicio distinto de Grok, de xAI.</p>
 
-    <h3 id="mistral">Mistral <span class="badge">De pago</span></h3>
-    <p>Empresa europea. Para usar claves de API necesita un plan de pago (<b>Upgrade</b> en su consola). Después, elige <b>Mistral</b> en Ajustes y pega la clave.</p>
+    <h3 id="otro">Otro proveedor</h3>
+    <p>También puedes usar la clave de otro servicio de IA compatible con la API de OpenAI, por ejemplo el que ofrezca tu centro. En Ajustes, elige <b>Otro proveedor</b> y rellena:</p>
+    <ul>
+      <li><b>Dirección del servicio:</b> la dirección base de su API, normalmente terminada en <code>/v1</code> (por ejemplo, <code>https://api.mistral.ai/v1</code>).</li>
+      <li><b>Modelo:</b> el nombre del modelo que quieres usar (por ejemplo, <code>mistral-large-latest</code>). Si lo dejas vacío, se elige el primero disponible.</li>
+      <li><b>Tu clave de API</b>, y pulsa <b>Probar clave</b>.</li>
+    </ul>
+    <p>Algunos servicios no aceptan llamadas directas desde una página web; si «Probar clave» no consigue conectar, ese servicio no se puede usar aquí.</p>
+
+    <h3 id="condiciones">Antes de usar cualquier servicio</h3>
+    <p>Te recomendamos leer sus <b>condiciones de uso</b> y su <b>política de privacidad</b> antes de usar cualquier servicio de IA: cómo trata tus textos, cuánto tiempo los conserva, si los usa para entrenar y qué edad mínima pide.</p>
 
     <h2 id="comparar">Comparar servicios</h2>
-    <p>Los tres servicios funcionan con esta herramienta. Esto es lo que ofrece cada uno:</p>
+    <p>Esto es lo que ofrece cada opción. Antes de elegir, te recomendamos leer las condiciones de uso y la política de privacidad del servicio.</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Servicio</th><th>Coste</th><th>Uso y renovación</th><th>Entrenamiento con tus textos</th><th>Dónde se procesan</th><th>Seguridad</th></tr></thead>
         <tbody>
           <tr><td><b>Infomaniak</b><br><span class="badge good">Recomendada</span> <span class="badge good">Más segura</span></td><td>1 millón de créditos gratis para empezar; después, céntimos por texto.</td><td>Según el saldo de la cuenta.</td><td>Nunca se usan para entrenar.</td><td>Solo en Suiza, sin registros.</td><td>Máxima: alojamiento en Suiza, leyes suiza y europea.</td></tr>
           <tr><td><b>Groq</b><br><span class="badge good">La más rápida de configurar</span></td><td>Gratis, sin tarjeta.</td><td>Unos 6 textos largos al día (8.000 tokens por minuto, 200.000 al día). Se renueva cada minuto y, el límite diario, a lo largo de 24 horas.</td><td>No se usan, según sus condiciones.</td><td>EE. UU.</td><td>Sin almacenamiento por defecto.</td></tr>
-          <tr><td><b>Mistral</b><br><span class="badge">De pago</span></td><td>Plan de pago, por uso.</td><td>Según el saldo de la cuenta.</td><td>Consulta su política vigente.</td><td>Unión Europea (Francia); conserva los textos 30 días para control de abusos.</td><td>Alojamiento europeo.</td></tr>
+          <tr><td><b>Otro proveedor</b></td><td>Según el servicio.</td><td>Según el servicio.</td><td>Consulta sus condiciones.</td><td>Según el servicio.</td><td>Revisa sus condiciones de uso y su política de privacidad.</td></tr>
         </tbody>
       </table>
     </div>
@@ -88,7 +96,7 @@
       <table>
         <thead><tr><th>Quién</th><th>¿Ve tu texto?</th><th>Detalles</th></tr></thead>
         <tbody>
-          <tr><td><b>Groq</b>, <b>Infomaniak</b> o <b>Mistral</b> (el que elijas)</td><td>Sí</td><td>Es quien revisa el texto. Infomaniak (Suiza) no los registra ni los usa para entrenar. Groq (EE. UU.) indica que no los usa para entrenar ni los guarda por defecto. Mistral (Francia) los conserva 30 días para control de abusos. <a href="#comparar">Ver comparación</a>.</td></tr>
+          <tr><td>El servicio de IA que elijas</td><td>Sí</td><td>Es quien revisa el texto. Infomaniak (Suiza) no los registra ni los usa para entrenar. Groq (EE. UU.) indica que no los usa para entrenar ni los guarda por defecto. Con otro proveedor, depende de sus condiciones. <a href="#comparar">Ver comparación</a>.</td></tr>
           <tr><td>GitHub (donde está la página)</td><td>No</td><td>Solo entrega la página. Tu texto y tu clave nunca pasan por GitHub.</td></tr>
           <tr><td>Este ordenador o móvil</td><td>Sí</td><td>La clave y el borrador se guardan en este navegador. En un ordenador compartido, activa «Ordenador compartido» en Ajustes.</td></tr>
           <tr><td>Tu profesor/a</td><td>No</td><td>No hay ningún servidor propio que reciba los textos.</td></tr>
