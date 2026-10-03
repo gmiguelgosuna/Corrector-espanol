@@ -7,7 +7,7 @@
   const MAX_WORDS = 5000;
   const CHUNK_WORDS = 450;
 
-  const DEFAULT_PROVIDER = 'groq';
+  const DEFAULT_PROVIDER = 'infomaniak';
   const PROVIDERS = {
     groq: {
       name: 'Groq',
@@ -532,7 +532,7 @@
       if (res.status === 401) {
         const detail = await errorDetail(res);
         let msg = `${p.name} no acepta tu clave: no es válida o tu plan no permite usar la API.`;
-        if (settings.provider === 'mistral') msg += ' El plan Free de Mistral ya no activa claves de API: elige Groq (gratis) en Ajustes.';
+        if (settings.provider === 'mistral') msg += ' Mistral necesita un plan de pago para usar claves de API. También puedes elegir Infomaniak o Groq en Ajustes.';
         else msg += ' Comprueba que la has copiado entera en Ajustes.';
         throw new AppError('key', msg + (detail ? ` (Mensaje de ${p.name}: «${detail}»)` : ''), true);
       }
@@ -924,7 +924,7 @@
   });
   /** Si la clave parece de otro servicio, devuelve un aviso (y cambia el servicio cuando lo reconoce). */
   function keyMismatch(prov, key) {
-    if (/^sk-ant-/.test(key)) return 'Esta clave es de Claude (Anthropic), que esta herramienta no usa. Crea una clave gratis de Groq.';
+    if (/^sk-ant-/.test(key)) return 'Esta clave es de Claude (Anthropic). Aquí puedes usar una clave de Infomaniak, Groq o Mistral.';
     if (/^gsk_/.test(key) && prov !== 'groq') {
       el.form.elements.provider.value = 'groq';
       syncProviderUI();
@@ -958,7 +958,7 @@
       } else {
         const detail = await errorDetail(res);
         let msg = `${name} rechaza la clave (${res.status}).`;
-        if (el.form.elements.provider.value === 'mistral' && res.status === 401) msg += ' El plan Free de Mistral ya no activa claves de API: usa Groq.';
+        if (el.form.elements.provider.value === 'mistral' && res.status === 401) msg += ' Mistral necesita un plan de pago para usar claves de API. También puedes elegir Infomaniak o Groq.';
         setMsg(el.testMsg, msg + (detail ? ` Mensaje: «${detail}»` : ''), 'err');
       }
     } catch (e) {

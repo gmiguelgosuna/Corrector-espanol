@@ -23,7 +23,7 @@
 
   <p class="notice" id="notice">
     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 4.6v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    <span>Tu texto se envía a <b id="providerName">Groq</b> para revisarlo. No incluyas datos personales (nombre completo, dirección, salud…). <a href="ayuda.html#privacidad">¿Quién puede ver mis datos?</a></span>
+    <span>Tu texto se envía a <b id="providerName">Infomaniak</b> para revisarlo. No incluyas datos personales (nombre completo, dirección, salud…). <a href="ayuda.html#privacidad">¿Quién puede ver mis datos?</a></span>
   </p>
 
   <main class="layout">
@@ -97,7 +97,7 @@
           <span class="chip static t-sintaxis">Sintaxis</span>
           <span class="chip static t-estilo">Estilo</span>
         </div>
-        <p>La primera vez necesitas una clave gratuita. <a href="ayuda.html#clave">Cómo conseguirla</a>.</p>
+        <p>La primera vez necesitas una clave de API. <a href="ayuda.html#clave">Cómo conseguirla</a>.</p>
       </div>
 
       <div class="panel" id="sumPanel" hidden>
@@ -129,32 +129,33 @@
       <span class="label">Servicio de IA</span>
       <div class="seg cards">
         <label>
-          <input type="radio" name="provider" value="groq" checked>
+          <input type="radio" name="provider" value="infomaniak" checked>
           <span class="card-body">
-            <span class="card-title">Groq <span class="badge good">Gratis · sin tarjeta</span> <span class="badge">Recomendada para empezar</span></span>
-            <small><b>Límite:</b> unos 6 textos largos al día por cuenta (8.000 tokens por minuto y 200.000 al día). El límite por minuto se renueva cada minuto; el diario, poco a poco a lo largo de 24 horas.</small>
-            <small><b>Privacidad:</b> según sus condiciones, no usa tus textos para entrenar su IA ni los guarda por defecto. Empresa de EE. UU. Pide tener 18 años o permiso de madre, padre o tutor.</small>
-            <small>Groq (con «q») no es Grok, la IA de xAI.</small>
+            <span class="card-title">Infomaniak <span class="badge good">Recomendada</span> <span class="badge good">Más segura</span></span>
+            <small><b>Privacidad:</b> los textos se procesan solo en Suiza, sin registros y sin usarse para entrenar. Leyes suiza y europea de protección de datos.</small>
+            <small><b>Coste:</b> 1 millón de créditos gratis para empezar; después, pago por uso (céntimos por texto).</small>
           </span>
         </label>
         <label>
-          <input type="radio" name="provider" value="infomaniak">
+          <input type="radio" name="provider" value="groq">
           <span class="card-body">
-            <span class="card-title">Infomaniak <span class="badge good">Más segura</span> <span class="badge">De pago</span></span>
-            <small><b>Privacidad:</b> los textos se procesan solo en Suiza, no se registran y nunca se usan para entrenar. Leyes suiza y europea de protección de datos.</small>
-            <small><b>Coste:</b> 1 millón de créditos gratis al empezar; después, pago por uso (céntimos por texto). Necesita tarjeta.</small>
+            <span class="card-title">Groq <span class="badge good">La más rápida de configurar</span></span>
+            <small>Clave gratuita en unos minutos, sin tarjeta.</small>
+            <small><b>Uso:</b> unos 6 textos largos al día por cuenta (8.000 tokens por minuto y 200.000 al día). El límite por minuto se renueva cada minuto; el diario, poco a poco a lo largo de 24 horas.</small>
+            <small><b>Privacidad:</b> según sus condiciones, no usa los textos para entrenar ni los guarda por defecto. Empresa de EE. UU.; pide tener 18 años o permiso de madre, padre o tutor.</small>
+            <small>Groq, con «q», es un servicio distinto de Grok (xAI).</small>
           </span>
         </label>
         <label>
           <input type="radio" name="provider" value="mistral">
           <span class="card-body">
-            <span class="card-title">Mistral <span class="badge">De pago</span> <span class="badge warn">Precaución</span></span>
-            <small><b>Privacidad:</b> empresa europea (Francia). Guarda los textos 30 días para vigilar abusos, y su política de 2026 ya no dice claramente que no entrene con los datos de pago.</small>
-            <small><b>Coste:</b> su plan gratuito no activa claves de API; hay que pagar (Upgrade) con tarjeta.</small>
+            <span class="card-title">Mistral <span class="badge">De pago</span></span>
+            <small><b>Privacidad:</b> empresa europea (Francia). Conserva los textos 30 días para control de abusos; consulta su política de privacidad vigente.</small>
+            <small><b>Coste:</b> requiere un plan de pago para usar claves de API.</small>
           </span>
         </label>
       </div>
-      <p class="hint risk">Con cualquier servicio, tu texto sale de este equipo y podría verse afectado si la empresa sufre una filtración de datos. No incluyas datos personales. <a href="ayuda.html#comparar" target="_blank" rel="noopener">Comparar servicios</a></p>
+      <p class="hint">Tu texto se envía al servicio elegido solo para revisarlo. Como buena práctica, no incluyas datos personales. <a href="ayuda.html#comparar" target="_blank" rel="noopener">Comparar servicios</a></p>
     </div>
 
     <div class="field">
@@ -165,7 +166,7 @@
         <button class="btn small" id="testKey" type="button">Probar clave</button>
       </div>
       <span class="hint" id="testMsg" role="status"></span>
-      <span class="hint" id="keyHint">¿No tienes clave? <a href="ayuda.html#clave" target="_blank" rel="noopener">Consigue una gratis de Groq en 5 minutos</a>.</span>
+      <span class="hint" id="keyHint">¿No tienes clave? <a href="ayuda.html#clave" target="_blank" rel="noopener">Cómo conseguirla</a>.</span>
     </div>
 
     <div id="infomaniakFields" hidden>

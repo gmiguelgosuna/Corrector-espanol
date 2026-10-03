@@ -20,45 +20,50 @@
   <main class="prose">
     <h1>Cómo empezar</h1>
     <p>Profe de apoyo revisa la ortografía, la gramática, la puntuación y la sintaxis de tus textos en español. Cada corrección viene con la regla y una explicación breve. Tú decides si la aceptas o no.</p>
-    <p>Para funcionar necesita una <b>clave de API</b>: una contraseña que permite usar un servicio de inteligencia artificial. Recomendamos <b>Groq</b>, que es gratis. Solo tienes que pegarla una vez.</p>
+    <p>Para funcionar necesita una <b>clave de API</b>: una contraseña que permite usar un servicio de inteligencia artificial. Te recomendamos <b>Infomaniak</b>; <b>Groq</b> es la forma más rápida de conseguir una clave gratis. Solo tienes que pegarla una vez.</p>
 
-    <h2 id="clave">Conseguir tu clave gratis de Groq (unos 5 minutos)</h2>
+    <h2 id="clave">Conseguir tu clave</h2>
+    <p>Puedes usar cualquiera de estos servicios. Te recomendamos <b>Infomaniak</b>, el más seguro. Si quieres empezar en unos minutos y sin tarjeta, <b>Groq</b> es el más rápido de configurar.</p>
+
+    <h3 id="infomaniak">Infomaniak <span class="badge good">Recomendada</span> <span class="badge good">Más segura</span></h3>
+    <div class="box">
+      <ol>
+        <li>Crea una cuenta en el <a href="https://manager.infomaniak.com" target="_blank" rel="noopener">Manager de Infomaniak</a>.</li>
+        <li>Ve a <b>Cloud Computing → AI Tools</b> y activa el producto. Incluye 1 millón de créditos gratis para empezar; después se paga por uso (céntimos por texto).</li>
+        <li>Copia el <b>ID del producto</b> y crea un <b>token de API</b>.</li>
+        <li>En Profe de apoyo, abre <b>Ajustes</b>, elige <b>Infomaniak</b>, pega el token y el ID del producto, pulsa <b>Probar clave</b> y luego <b>Guardar</b>.</li>
+      </ol>
+    </div>
+
+    <h3 id="groq">Groq <span class="badge good">La más rápida de configurar</span></h3>
     <div class="box">
       <ol>
         <li>Entra en <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> y crea una cuenta (con tu correo o con Google). No hace falta tarjeta.</li>
         <li>En el menú, ve a <b>API Keys</b> y pulsa <b>Create API Key</b> (crear clave). Ponle un nombre, por ejemplo «Profe de apoyo».</li>
         <li>Copia la clave: empieza por <code>gsk_</code> y solo se muestra una vez.</li>
-        <li>Vuelve a Profe de apoyo, abre <b>Ajustes</b>, elige <b>Groq</b>, pega la clave y pulsa <b>Probar clave</b>. Si sale «Clave correcta ✓», pulsa <b>Guardar</b>.</li>
+        <li>En Profe de apoyo, abre <b>Ajustes</b>, elige <b>Groq</b>, pega la clave, pulsa <b>Probar clave</b> y luego <b>Guardar</b>.</li>
       </ol>
     </div>
-    <p><b>Límites del plan gratuito:</b> Groq limita cuánto texto se puede revisar por minuto y por día. En la práctica alcanza para varios textos largos al día. Si un texto es muy largo, verás «esperando al límite por minuto»: no cierres la página, sigue sola.</p>
-    <p><b>Edad:</b> las condiciones de Groq exigen tener 18 años o que tu madre, padre o tutor las acepte por ti.</p>
-    <p><b>Ojo con el nombre:</b> es <b>Groq</b>, con «q» (console.groq.com). No es Grok, la IA de xAI.</p>
+    <p><b>Uso incluido:</b> unos 6 textos largos al día por cuenta. Si un texto es muy largo, verás «esperando al límite por minuto»: la revisión sigue sola en unos segundos.</p>
+    <p><b>Edad:</b> las condiciones de Groq piden tener 18 años o que tu madre, padre o tutor las acepte.</p>
+    <p><b>Nombre:</b> Groq se escribe con «q» (console.groq.com) y es un servicio distinto de Grok, de xAI.</p>
+
+    <h3 id="mistral">Mistral <span class="badge">De pago</span></h3>
+    <p>Empresa europea. Para usar claves de API necesita un plan de pago (<b>Upgrade</b> en su consola). Después, elige <b>Mistral</b> en Ajustes y pega la clave.</p>
 
     <h2 id="comparar">Comparar servicios</h2>
-    <p>Los tres servicios revisan igual de bien con esta herramienta. Cambian el coste y lo que hacen con tus textos.</p>
+    <p>Los tres servicios funcionan con esta herramienta. Esto es lo que ofrece cada uno:</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Servicio</th><th>Coste</th><th>Límites y renovación</th><th>¿Entrena con tus textos?</th><th>¿Dónde y cuánto se guardan?</th><th>Seguridad</th></tr></thead>
+        <thead><tr><th>Servicio</th><th>Coste</th><th>Uso y renovación</th><th>Entrenamiento con tus textos</th><th>Dónde se procesan</th><th>Seguridad</th></tr></thead>
         <tbody>
-          <tr><td><b>Groq</b><br><span class="badge good">Gratis · sin tarjeta</span></td><td>Gratis</td><td>Unos 6 textos largos al día por cuenta (8.000 tokens por minuto, 200.000 al día). El límite por minuto se renueva cada minuto; el diario, poco a poco a lo largo de 24 horas.</td><td>No, según sus condiciones.</td><td>EE. UU. No los guarda por defecto.</td><td>Buena. Empresa sujeta a la ley de EE. UU.</td></tr>
-          <tr><td><b>Infomaniak</b><br><span class="badge good">Más segura</span></td><td>De pago (tarjeta). 1 millón de créditos gratis al empezar; después, céntimos por texto.</td><td>Según el saldo de tu cuenta.</td><td>No, nunca.</td><td>Solo en Suiza. Las peticiones no se registran.</td><td>La más alta: leyes suiza y europea de protección de datos.</td></tr>
-          <tr><td><b>Mistral</b><br><span class="badge warn">Precaución</span></td><td>De pago (tarjeta). Su plan gratuito no activa claves de API.</td><td>Según el saldo de tu cuenta.</td><td>No está claro: su política de 2026 ya no lo excluye de forma explícita.</td><td>Unión Europea (Francia). Guarda los textos 30 días para vigilar abusos.</td><td>Media.</td></tr>
+          <tr><td><b>Infomaniak</b><br><span class="badge good">Recomendada</span> <span class="badge good">Más segura</span></td><td>1 millón de créditos gratis para empezar; después, céntimos por texto.</td><td>Según el saldo de la cuenta.</td><td>Nunca se usan para entrenar.</td><td>Solo en Suiza, sin registros.</td><td>Máxima: alojamiento en Suiza, leyes suiza y europea.</td></tr>
+          <tr><td><b>Groq</b><br><span class="badge good">La más rápida de configurar</span></td><td>Gratis, sin tarjeta.</td><td>Unos 6 textos largos al día (8.000 tokens por minuto, 200.000 al día). Se renueva cada minuto y, el límite diario, a lo largo de 24 horas.</td><td>No se usan, según sus condiciones.</td><td>EE. UU.</td><td>Sin almacenamiento por defecto.</td></tr>
+          <tr><td><b>Mistral</b><br><span class="badge">De pago</span></td><td>Plan de pago, por uso.</td><td>Según el saldo de la cuenta.</td><td>Consulta su política vigente.</td><td>Unión Europea (Francia); conserva los textos 30 días para control de abusos.</td><td>Alojamiento europeo.</td></tr>
         </tbody>
       </table>
     </div>
-    <p><b>Riesgos que existen con cualquier servicio:</b> tu texto sale de tu equipo y lo procesa otra empresa; si esa empresa sufriera una filtración de datos, podría quedar expuesto. Además, tu clave queda guardada en este navegador. Por eso: no incluyas datos personales, usa «Ordenador compartido» en equipos del aula y, si crees que alguien ha visto tu clave, bórrala en la web del servicio y crea otra.</p>
-
-    <h2 id="mistral">Mistral (de pago)</h2>
-    <p>El plan gratuito de Mistral ya no permite usar claves de API: hay que pulsar <b>Upgrade</b> y pagar por uso. Si tu centro tiene una cuenta de pago, elige <b>Mistral</b> en Ajustes y pega la clave.</p>
-
-    <h2 id="infomaniak">Usar Infomaniak (opcional, de pago)</h2>
-    <p>Infomaniak es una empresa suiza que no usa tus textos para entrenar su IA. Es de pago (unos céntimos por revisión), así que normalmente lo configura el profesor o la profesora.</p>
-    <ol>
-      <li>En el <a href="https://manager.infomaniak.com" target="_blank" rel="noopener">Manager de Infomaniak</a>, ve a <b>Cloud Computing → AI Tools</b> y activa el producto.</li>
-      <li>Copia el <b>ID del producto</b> y crea un <b>token de API</b>.</li>
-      <li>En Ajustes, elige <b>Infomaniak</b>, pega el token y el ID del producto, y guarda.</li>
-    </ol>
+    <p><b>Buenas prácticas con cualquier servicio:</b> tu texto se envía al servicio elegido solo para revisarlo. No incluyas datos personales, activa «Ordenador compartido» en los equipos del aula y, si crees que alguien ha visto tu clave, crea una nueva en la web del servicio.</p>
 
     <h2 id="variantes">Todas las variantes del español</h2>
     <p>El corrector sigue la norma común de las 23 academias de la lengua (RAE y ASALE): la <i>Ortografía</i> de 2010, la <i>Nueva gramática</i>, el <i>Diccionario panhispánico de dudas</i> y el <i>Diccionario de la lengua española</i> actual. Todas las variedades cultas del español son correctas.</p>
@@ -83,7 +88,7 @@
       <table>
         <thead><tr><th>Quién</th><th>¿Ve tu texto?</th><th>Detalles</th></tr></thead>
         <tbody>
-          <tr><td><b>Groq</b>, <b>Infomaniak</b> o <b>Mistral</b> (el que elijas)</td><td>Sí</td><td>Es quien revisa el texto. Groq (EE. UU.) indica que no los usa para entrenar ni los guarda por defecto. Infomaniak (Suiza) no los registra ni los usa para entrenar. Mistral (Francia) los guarda 30 días. <a href="#comparar">Ver comparación</a>.</td></tr>
+          <tr><td><b>Groq</b>, <b>Infomaniak</b> o <b>Mistral</b> (el que elijas)</td><td>Sí</td><td>Es quien revisa el texto. Infomaniak (Suiza) no los registra ni los usa para entrenar. Groq (EE. UU.) indica que no los usa para entrenar ni los guarda por defecto. Mistral (Francia) los conserva 30 días para control de abusos. <a href="#comparar">Ver comparación</a>.</td></tr>
           <tr><td>GitHub (donde está la página)</td><td>No</td><td>Solo entrega la página. Tu texto y tu clave nunca pasan por GitHub.</td></tr>
           <tr><td>Este ordenador o móvil</td><td>Sí</td><td>La clave y el borrador se guardan en este navegador. En un ordenador compartido, activa «Ordenador compartido» en Ajustes.</td></tr>
           <tr><td>Tu profesor/a</td><td>No</td><td>No hay ningún servidor propio que reciba los textos.</td></tr>
@@ -102,7 +107,7 @@
     <h2 id="problemas">Si algo no funciona</h2>
     <ul>
       <li><b>«No acepta tu clave»:</b> vuelve a copiarla entera, sin espacios, comprueba que has elegido el servicio correcto y pulsa <b>Probar clave</b> en Ajustes. Las claves de Groq empiezan por <code>gsk_</code>.</li>
-      <li><b>«Límite diario»:</b> el plan gratuito de Groq tiene un máximo por día. Inténtalo mañana: lo ya revisado no se pierde mientras no cierres la página.</li>
+      <li><b>«Límite diario»</b> (Groq): el uso gratuito se renueva a lo largo del día. Vuelve a intentarlo más tarde; lo ya revisado se conserva mientras no cierres la página.</li>
       <li><b>«No se pudo conectar»:</b> revisa tu conexión. Si sigue fallando en la red del centro, puede que esté bloqueada: avisa a tu profesor/a.</li>
       <li><b>El Word no se abre:</b> solo se leen archivos <code>.docx</code>. Si tienes un <code>.doc</code> antiguo, guárdalo como <code>.docx</code> o copia y pega el texto.</li>
     </ul>

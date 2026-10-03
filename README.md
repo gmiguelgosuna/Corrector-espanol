@@ -7,24 +7,24 @@ Herramienta web gratuita para que estudiantes revisen la **ortografía, gramáti
 ## Para el profesor o la profesora
 
 1. Comparte el enlace con tus estudiantes.
-2. Cada estudiante necesita una **clave de API gratuita de Groq** (sin tarjeta). La página [Ayuda](https://gmiguelgosuna.github.io/Corrector-espanol/ayuda.html#clave) explica paso a paso cómo conseguirla (unos 5 minutos).
+2. Cada estudiante pega su propia **clave de API**. Recomendamos **Infomaniak** (la más segura); **Groq** es la forma más rápida de conseguir una clave gratis, sin tarjeta. La página [Ayuda](https://gmiguelgosuna.github.io/Corrector-espanol/ayuda.html#clave) explica paso a paso cómo conseguir cada una.
 3. Nunca publiques una clave en este repositorio ni en una web. Si una clave se filtra, bórrala en la consola del servicio y crea otra.
-4. Otras opciones en *Ajustes*: **Infomaniak** (de pago, la más segura) y **Mistral** (de pago). Ver la tabla de abajo.
+4. En *Ajustes* se elige el servicio: Infomaniak, Groq o Mistral. Ver la tabla de abajo.
 
 ### Servicios de IA
-| Servicio | Coste | Límites | Entrena con los textos | Dónde se guardan | Seguridad |
+| Servicio | Etiqueta | Coste | Uso | Entrenamiento con los textos | Dónde se procesan |
 |---|---|---|---|---|---|
-| **Groq** (con «q», no Grok) | Gratis, sin tarjeta | ~6 textos largos/día por cuenta; se renueva por minuto y a lo largo de 24 h | No (según sus condiciones) | EE. UU., no se guardan por defecto | Buena |
-| **Infomaniak** | De pago (1 M créditos gratis al empezar) | Según saldo | No | Solo Suiza, sin registro | **Más segura** |
-| **Mistral** | De pago (el plan Free no activa claves) | Según saldo | No está claro desde su política de 2026 | UE, 30 días | Precaución |
+| **Infomaniak** | **Recomendada · Más segura** | 1 M de créditos gratis para empezar; después, céntimos por texto | Según saldo | Nunca | Solo Suiza, sin registros |
+| **Groq** (con «q», distinto de Grok) | **La más rápida de configurar** | Gratis, sin tarjeta | ~6 textos largos/día por cuenta; se renueva cada minuto y a lo largo de 24 h | No, según sus condiciones | EE. UU., sin almacenamiento por defecto |
+| **Mistral** | De pago | Plan de pago, por uso | Según saldo | Consultar su política vigente | UE (Francia), 30 días para control de abusos |
 
 ### Variantes del español
 El corrector sigue la norma panhispánica (RAE y ASALE) y acepta todas las variedades cultas: voseo, *ustedes*, vocabulario regional, etc. Solo señala errores y la mezcla de variantes dentro del mismo texto. El estudiante puede elegir su variante o dejarla en «Automática».
 
 ### Privacidad, en resumen
-- No hay servidor propio: el texto va directamente del navegador del estudiante al servicio elegido (Groq, Infomaniak o Mistral).
+- No hay servidor propio: el texto va directamente del navegador del estudiante al servicio elegido (Infomaniak, Groq o Mistral).
 - GitHub solo aloja la página; no ve los textos ni las claves.
-- Groq indica que no usa los textos para entrenar ni los guarda de forma permanente. Aun así, pide a tus estudiantes que no incluyan datos personales.
+- Como buena práctica, pide a tus estudiantes que no incluyan datos personales en los textos.
 - Las condiciones de Groq exigen 18 años o la aceptación de madre, padre o tutor.
 - En ordenadores compartidos, activa *Ajustes → Ordenador compartido*.
 - La página no carga nada de otras webs: las fuentes y el lector de Word están incluidos en el repositorio.
@@ -38,9 +38,9 @@ Pídelo a Claude (por ejemplo: «cambia el límite a 15 páginas» o «añade un
 
 - Static site: `index.html`, `ayuda.html`, `styles.css`, `app.js`. No build step.
 - Calls the provider directly from the browser (OpenAI-style `chat/completions`):
-  - Groq (default, free): `https://api.groq.com/openai/v1/chat/completions`, model auto-detected from `/openai/v1/models` (prefers `gpt-oss-120b`, then `llama-3.3-70b`)
+  - Groq (free): `https://api.groq.com/openai/v1/chat/completions`, model auto-detected from `/openai/v1/models` (prefers `gpt-oss-120b`, then `llama-3.3-70b`)
   - Mistral (paid): `https://api.mistral.ai/v1/chat/completions`, model `mistral-large-latest`
-  - Infomaniak: `https://api.infomaniak.com/1/ai/{product_id}/openai/chat/completions` (model auto-detected from `/openai/models`, or set in Settings)
+  - Infomaniak (default): `https://api.infomaniak.com/1/ai/{product_id}/openai/chat/completions` (model auto-detected from `/openai/models`, or set in Settings)
 - Long texts are split into ~450-word sections. Groq and Mistral run them one at a time, Infomaniak two at a time. 429 responses wait for `retry-after` / `x-ratelimit-reset-*` (up to 60 s, with a countdown); a daily-limit 429 stops with a clear message.
 - Keys and drafts are stored in `localStorage` (or `sessionStorage` with "Ordenador compartido").
 - Deployed by `.github/workflows/pages.yml`. One-time setup: **Settings → Pages → Source: GitHub Actions**.

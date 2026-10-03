@@ -507,3 +507,4 @@ dialog { max-height: calc(100dvh - 32px); overflow: auto; }
 .hint.risk { margin: 6px 0 0; color: var(--warn-ink); }
 .keyrow { flex-wrap: wrap; }
 .keyrow input { flex: 1 1 180px; }
+.prose h3 { font: 650 1.1rem/1.3 var(--font-text); margin: 22px 0 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
