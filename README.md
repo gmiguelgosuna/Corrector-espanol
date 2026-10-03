@@ -9,7 +9,17 @@ Herramienta web gratuita para que estudiantes revisen la **ortografía, gramáti
 1. Comparte el enlace con tus estudiantes.
 2. Cada estudiante necesita una **clave de API gratuita de Groq** (sin tarjeta). La página [Ayuda](https://gmiguelgosuna.github.io/Corrector-espanol/ayuda.html#clave) explica paso a paso cómo conseguirla (unos 5 minutos).
 3. Nunca publiques una clave en este repositorio ni en una web. Si una clave se filtra, bórrala en la consola del servicio y crea otra.
-4. Otras opciones en *Ajustes*: **Infomaniak** (de pago, en Suiza) y **Mistral** (de pago: su plan gratuito ya no activa claves de API).
+4. Otras opciones en *Ajustes*: **Infomaniak** (de pago, la más segura) y **Mistral** (de pago). Ver la tabla de abajo.
+
+### Servicios de IA
+| Servicio | Coste | Límites | Entrena con los textos | Dónde se guardan | Seguridad |
+|---|---|---|---|---|---|
+| **Groq** (con «q», no Grok) | Gratis, sin tarjeta | ~6 textos largos/día por cuenta; se renueva por minuto y a lo largo de 24 h | No (según sus condiciones) | EE. UU., no se guardan por defecto | Buena |
+| **Infomaniak** | De pago (1 M créditos gratis al empezar) | Según saldo | No | Solo Suiza, sin registro | **Más segura** |
+| **Mistral** | De pago (el plan Free no activa claves) | Según saldo | No está claro desde su política de 2026 | UE, 30 días | Precaución |
+
+### Variantes del español
+El corrector sigue la norma panhispánica (RAE y ASALE) y acepta todas las variedades cultas: voseo, *ustedes*, vocabulario regional, etc. Solo señala errores y la mezcla de variantes dentro del mismo texto. El estudiante puede elegir su variante o dejarla en «Automática».
 
 ### Privacidad, en resumen
 - No hay servidor propio: el texto va directamente del navegador del estudiante al servicio elegido (Groq, Infomaniak o Mistral).

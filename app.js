@@ -48,22 +48,45 @@
   };
 
   const SYSTEM_PROMPT = [
-    'Eres un profesor de apoyo de lengua española, paciente y riguroso. Revisas redacciones de estudiantes siguiendo la norma de la RAE.',
+    'Eres un profesor de apoyo de lengua española, paciente y riguroso. Revisas redacciones de estudiantes de cualquier país hispanohablante.',
     '',
-    'Tarea: detecta los errores REALES del texto: ortografía (incluidas tildes y mayúsculas), gramática, concordancia (género, número, sujeto-verbo), sintaxis (orden, preposiciones, dequeísmo, queísmo, leísmo, laísmo, loísmo) y puntuación.',
+    'Norma: aplica la norma panhispánica vigente de las 23 academias (RAE y ASALE): Ortografía de la lengua española (2010), Nueva gramática, Diccionario panhispánico de dudas y la edición actual del Diccionario de la lengua española. Ten en cuenta los cambios recientes: por ejemplo, «solo» y los demostrativos no llevan tilde salvo para evitar una ambigüedad real, y se escribe «guion», «truhan», «guie».',
+    '',
+    'Variedades: todas las variedades cultas del español son igual de correctas. NUNCA corrijas una forma regional admitida, por ejemplo:',
+    '- el voseo y sus formas verbales (vos tenés, vos sos, vení);',
+    '- «ustedes» en lugar de «vosotros»;',
+    '- el vocabulario regional (carro/coche, computadora/ordenador, celular/móvil, jugo/zumo);',
+    '- el leísmo de persona masculino singular que admite la norma («le vi», «a Juan le saludé»);',
+    '- la preferencia regional entre pretérito perfecto simple y compuesto («hoy fui» / «hoy he ido»);',
+    '- usos regionales extendidos como «recién llegó» o «ahorita».',
+    'Si la variante indicada no es «Automática», ajusta tus explicaciones a esa variante. Si es «Automática», dedúcela del propio texto.',
+    'Sí debes señalar, como "estilo", la mezcla incoherente de variantes en el mismo texto (por ejemplo, tratar de «tú» y de «vos» a la misma persona, o mezclar «vosotros» y «ustedes» para el mismo grupo).',
+    '',
+    'Tarea: detecta los errores REALES del texto: ortografía (incluidas tildes y mayúsculas), gramática, concordancia (género, número, sujeto-verbo), sintaxis (orden, preposiciones, dequeísmo, queísmo, laísmo, loísmo y el leísmo no admitido) y puntuación.',
     'Señala "estilo" solo cuando una frase sea claramente confusa, repetitiva o impropia; nunca por gustos personales.',
-    'Respeta las ideas y la voz del estudiante: corrige, no reescribas. No inventes errores. Si una forma es correcta o admitida, no la marques.',
+    'Respeta las ideas y la voz del estudiante: corrige, no reescribas. No inventes errores. Si una forma es correcta o admitida en alguna variedad culta, no la marques.',
     '',
     'Para cada error devuelve un objeto con:',
     '- "original": fragmento copiado EXACTAMENTE del texto (mismas letras, tildes, mayúsculas y signos), con 1 a 6 palabras, lo justo para localizar el error sin ambigüedad.',
     '- "correccion": ese mismo fragmento ya corregido.',
     '- "tipo": uno de "ortografia", "gramatica", "concordancia", "puntuacion", "sintaxis", "estilo".',
-    '- "regla": nombre breve de la norma (por ejemplo "Tilde diacrítica", "Concordancia sujeto-verbo", "Coma en incisos", "Leísmo", "Haber impersonal").',
-    '- "explicacion": 1 o 2 frases claras (máximo 35 palabras) dirigidas al estudiante, que expliquen POR QUÉ se corrige. Si ayuda, añade un ejemplo breve.',
+    '- "regla": nombre breve de la norma (por ejemplo "Tilde diacrítica", "Concordancia sujeto-verbo", "Coma en incisos", "Haber impersonal", "Coherencia en el tratamiento").',
+    '- "explicacion": 1 o 2 frases claras (máximo 35 palabras) dirigidas al estudiante, que expliquen POR QUÉ se corrige. Si la regla depende de la variedad, dilo (por ejemplo: «En el Río de la Plata es correcto "vos tenés"; aquí se corrige porque el resto del texto usa "tú"»).',
     '',
     'Devuelve los errores en el orden en que aparecen en el texto. Si no hay errores, devuelve una lista vacía.',
     'Responde ÚNICAMENTE con JSON válido con esta forma: {"sugerencias":[{"original":"","correccion":"","tipo":"","regla":"","explicacion":""}]}',
   ].join('\n');
+
+  const VARIANTS = {
+    auto: 'Automática (dedúcela del propio texto)',
+    es: 'España',
+    mx: 'México y Centroamérica',
+    caribe: 'Caribe (Cuba, Puerto Rico, República Dominicana, costas de Venezuela y Colombia)',
+    andina: 'Andina (Colombia, Ecuador, Perú, Bolivia, Venezuela)',
+    rio: 'Río de la Plata (Argentina, Uruguay, Paraguay)',
+    cl: 'Chile',
+    us: 'Estados Unidos',
+  };
 
   const SAMPLE_TEXT = [
     'El verano pasado fuimos a la playa con mis primos. Hubieron muchas personas y no encontramos sitio para aparcar. Mi tía, que es muy organizada nos dijo que teníamos que llegar mas temprano. A mis primos les encanta nadar, pero a mí me gusta mas leer en la arena.',
@@ -245,12 +268,12 @@
   };
 
   // Exponer funciones puras para pruebas.
-  window.PA = { splitChunks, parseSuggestions, locate, applyFix, normalizeType, countWords };
+  window.PA = { splitChunks, parseSuggestions, locate, applyFix, normalizeType, countWords, prompt: SYSTEM_PROMPT };
 
   if (!document.getElementById('input')) return; // página de ayuda u otra
 
   // ---------- Estado ----------
-  let settings = Object.assign({ provider: DEFAULT_PROVIDER, key: '', productId: '', model: '' }, store.read('settings') || {});
+  let settings = Object.assign({ provider: DEFAULT_PROVIDER, key: '', productId: '', model: '', variant: 'auto' }, store.read('settings') || {});
   if (!PROVIDERS[settings.provider]) settings.provider = DEFAULT_PROVIDER;
   let doc = '';
   let chunks = [];
@@ -274,7 +297,7 @@
     download: $('downloadBtn'), how: $('howPanel'), sum: $('sumPanel'), stats: $('stats'), filters: $('filters'),
     listPanel: $('listPanel'), list: $('list'), acceptAll: $('acceptAll'), rejectAll: $('rejectAll'),
     providerName: $('providerName'), dlg: $('settings'), form: $('settingsForm'), apiKey: $('apiKey'),
-    toggleKey: $('toggleKey'), testKey: $('testKey'), testMsg: $('testMsg'), productId: $('productId'), model: $('model'), shared: $('shared'),
+    variant: $('variant'), toggleKey: $('toggleKey'), testKey: $('testKey'), testMsg: $('testMsg'), productId: $('productId'), model: $('model'), shared: $('shared'),
     infoFields: $('infomaniakFields'), wipe: $('wipeBtn'), msg: $('settingsMsg'), openSettings: $('openSettings'),
   };
 
@@ -488,7 +511,7 @@
         temperature: 0,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: 'Texto del estudiante (entre las marcas <<< y >>>):\n<<<\n' + text + '\n>>>' },
+          { role: 'user', content: 'Variante del español: ' + (VARIANTS[settings.variant] || VARIANTS.auto) + '\n\nTexto del estudiante (entre las marcas <<< y >>>):\n<<<\n' + text + '\n>>>' },
         ],
       };
       if (useFormat) body.response_format = { type: 'json_object' };
@@ -961,7 +984,7 @@
     }
     if (prov === 'infomaniak' && !pid) { el.msg.style.color = 'var(--err-ink)'; el.msg.textContent = 'Falta el ID del producto.'; el.productId.focus(); return; }
     const changed = prov !== settings.provider || key !== settings.key || pid !== settings.productId || el.model.value.trim() !== settings.model;
-    settings = { provider: prov, key, productId: pid, model: el.model.value.trim() };
+    settings = { provider: prov, key, productId: pid, model: el.model.value.trim(), variant: settings.variant || 'auto' };
     if (changed) { detectedModel = null; detectTried = false; }
     if (el.shared.checked !== store.isShared()) store.setShared(el.shared.checked);
     store.write('settings', settings);
@@ -979,7 +1002,8 @@
       return;
     }
     store.wipe();
-    settings = { provider: DEFAULT_PROVIDER, key: '', productId: '', model: '' };
+    settings = { provider: DEFAULT_PROVIDER, key: '', productId: '', model: '', variant: 'auto' };
+    el.variant.value = 'auto';
     detectedModel = null;
     detectTried = false;
     el.apiKey.value = '';
@@ -1000,7 +1024,13 @@
     el.providerName.textContent = (PROVIDERS[settings.provider] || PROVIDERS[DEFAULT_PROVIDER]).name;
   }
 
+  el.variant.addEventListener('change', () => {
+    settings.variant = el.variant.value;
+    store.write('settings', settings);
+  });
+
   // ---------- Inicio ----------
+  el.variant.value = VARIANTS[settings.variant] ? settings.variant : 'auto';
   const draft = store.read('draft');
   if (typeof draft === 'string' && draft) el.input.value = draft;
   updateCount();

@@ -33,6 +33,18 @@
         <div class="page-bar">
           <button class="btn small" id="uploadBtn" type="button">Subir Word (.docx)</button>
           <input id="fileInput" type="file" accept=".docx,.txt,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+          <label class="variant" for="variant"><span>Variante</span>
+            <select id="variant">
+              <option value="auto">Automática</option>
+              <option value="es">España</option>
+              <option value="mx">México y Centroamérica</option>
+              <option value="caribe">Caribe</option>
+              <option value="andina">Andina</option>
+              <option value="rio">Río de la Plata</option>
+              <option value="cl">Chile</option>
+              <option value="us">Estados Unidos</option>
+            </select>
+          </label>
           <span class="grow"></span>
           <span class="count" id="wordCount">0 / 5.000 palabras</span>
           <button class="btn primary" id="checkBtn" type="button">Revisar texto</button>
@@ -115,11 +127,34 @@
 
     <div class="field">
       <span class="label">Servicio de IA</span>
-      <div class="seg">
-        <label><input type="radio" name="provider" value="groq" checked> <span>Groq<small>Gratis. Recomendado.</small></span></label>
-        <label><input type="radio" name="provider" value="infomaniak"> <span>Infomaniak<small>De pago, en Suiza.</small></span></label>
-        <label><input type="radio" name="provider" value="mistral"> <span>Mistral<small>De pago.</small></span></label>
+      <div class="seg cards">
+        <label>
+          <input type="radio" name="provider" value="groq" checked>
+          <span class="card-body">
+            <span class="card-title">Groq <span class="badge good">Gratis · sin tarjeta</span> <span class="badge">Recomendada para empezar</span></span>
+            <small><b>Límite:</b> unos 6 textos largos al día por cuenta (8.000 tokens por minuto y 200.000 al día). El límite por minuto se renueva cada minuto; el diario, poco a poco a lo largo de 24 horas.</small>
+            <small><b>Privacidad:</b> según sus condiciones, no usa tus textos para entrenar su IA ni los guarda por defecto. Empresa de EE. UU. Pide tener 18 años o permiso de madre, padre o tutor.</small>
+            <small>Groq (con «q») no es Grok, la IA de xAI.</small>
+          </span>
+        </label>
+        <label>
+          <input type="radio" name="provider" value="infomaniak">
+          <span class="card-body">
+            <span class="card-title">Infomaniak <span class="badge good">Más segura</span> <span class="badge">De pago</span></span>
+            <small><b>Privacidad:</b> los textos se procesan solo en Suiza, no se registran y nunca se usan para entrenar. Leyes suiza y europea de protección de datos.</small>
+            <small><b>Coste:</b> 1 millón de créditos gratis al empezar; después, pago por uso (céntimos por texto). Necesita tarjeta.</small>
+          </span>
+        </label>
+        <label>
+          <input type="radio" name="provider" value="mistral">
+          <span class="card-body">
+            <span class="card-title">Mistral <span class="badge">De pago</span> <span class="badge warn">Precaución</span></span>
+            <small><b>Privacidad:</b> empresa europea (Francia). Guarda los textos 30 días para vigilar abusos, y su política de 2026 ya no dice claramente que no entrene con los datos de pago.</small>
+            <small><b>Coste:</b> su plan gratuito no activa claves de API; hay que pagar (Upgrade) con tarjeta.</small>
+          </span>
+        </label>
       </div>
+      <p class="hint risk">Con cualquier servicio, tu texto sale de este equipo y podría verse afectado si la empresa sufre una filtración de datos. No incluyas datos personales. <a href="ayuda.html#comparar" target="_blank" rel="noopener">Comparar servicios</a></p>
     </div>
 
     <div class="field">
